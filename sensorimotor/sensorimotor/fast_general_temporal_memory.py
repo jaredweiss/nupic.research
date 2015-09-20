@@ -41,9 +41,47 @@ class FastGeneralTemporalMemory(GeneralTemporalMemory, FastTemporalMemory):
   """
 
   def __init__(self, *args, **kwargs):
+    """
+    Parameters:
+    ----------------------------
+    @param columnDimensions:
+      (list)  Dimensions of the column space
+    @param cellsPerColumn:
+      (int)   Number of cells per column
+    @param activationThreshold:
+      (int)   If the number of active connected synapses on a segment is at least this threshold, the segment is said to be active.
+    @param initialPermanence:
+      (float) Initial permanence of a new synapse.
+    @param connectedPermanence:
+      (float) If the permanence value for a synapse is greater than this value, it is said to be connected.
+    @param minThreshold:
+      (int)   If the number of synapses active on a segment is at least this threshold, it is selected as the best matching cell in a bursting column.
+    @param maxNewSynapseCount:
+      (int)   The maximum number of synapses added to a segment during learning.
+    @param permanenceIncrement:
+      (float) Amount by which permanences of synapses are incremented during learning.
+    @param permanenceDecrement:
+      (float) Amount by which permanences of synapses are decremented during learning.
+    @param predictedSegmentDecrement:
+      (float) Amount by which active permanences of synapses of previously predicted but inactive segments are decremented.
+    @param seed:
+      (int)   Seed for the random number generator.
+    """
     super(FastGeneralTemporalMemory, self).__init__(*args, **kwargs)
     self.apicalConnections = Connections(self.numberOfCells())
-
+    """
+    @param columnDimensions          (list)  Dimensions of the column space
+    @param cellsPerColumn            (int)   Number of cells per column
+    #@param activationThreshold       (int)   If the number of active connected synapses on a segment is at least this threshold, the segment is said to be active.
+    @param initialPermanence         (float) Initial permanence of a new synapse.
+    @param connectedPermanence       (float) If the permanence value for a synapse is greater than this value, it is said to be connected.
+    @param minThreshold              (int)   If the number of synapses active on a segment is at least this threshold, it is selected as the best matching cell in a bursting column.
+    #@param maxNewSynapseCount        (int)   The maximum number of synapses added to a segment during learning.
+    @param permanenceIncrement       (float) Amount by which permanences of synapses are incremented during learning.
+    @param permanenceDecrement       (float) Amount by which permanences of synapses are decremented during learning.
+    #@param predictedSegmentDecrement (float) Amount by which active permanences of synapses of previously predicted but inactive segments are decremented.
+    #@param seed                      (int)   Seed for the random number generator.
+    """
 
   def burstColumns(self,
                    activeColumns,

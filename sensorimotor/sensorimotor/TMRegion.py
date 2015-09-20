@@ -26,38 +26,48 @@ import numpy
 from nupic.bindings.math import GetNTAReal
 from nupic.support import getArgumentDescriptions
 from nupic.regions.PyRegion import PyRegion
+from nupic.research.monitor_mixin.temporal_memory_monitor_mixin import (
+  TemporalMemoryMonitorMixin)
+from nupic.research.temporal_memory import TemporalMemory
+from nupic.research.fast_temporal_memory import FastTemporalMemory
 
 from sensorimotor.general_temporal_memory import GeneralTemporalMemory
 from sensorimotor.fast_general_temporal_memory import FastGeneralTemporalMemory
-from nupic.research.monitor_mixin.temporal_memory_monitor_mixin import (
-  TemporalMemoryMonitorMixin)
 
 
 
+class MonitoredTemporalMemory(TemporalMemoryMonitorMixin,
+                              TemporalMemory): pass
+class MonitoredFastTemporalMemory(TemporalMemoryMonitorMixin,
+                                  FastTemporalMemory): pass
+class MonitoredGeneralTemporalMemory(TemporalMemoryMonitorMixin,
+                                     GeneralTemporalMemory): pass
 class MonitoredFastGeneralTemporalMemory(TemporalMemoryMonitorMixin,
                                          FastGeneralTemporalMemory): pass
-class MonitoredGeneralTemporalMemory(TemporalMemoryMonitorMixin,
-                                      GeneralTemporalMemory): pass
 
 
 
 def getDefaultTMImp():
   """ Return the default temporal memory implementation for this region. """
-  return "fast"
+  return "fastGeneral"
 
 
 
-def getTMClass(tmImp):
+def getTMClass(tmImp, monitoring=False):
   """ Return the class corresponding to the given spatialImp string """
 
-  if tmImp == "general":
-    return GeneralTemporalMemory
+  if tmImp == "regular":
+    return (TemporalMemory if not monitoring
+            else MonitoredTemporalMemory)
   elif tmImp == "fast":
-    return FastGeneralTemporalMemory
-  elif tmImp == "generalMonitored":
-    return MonitoredGeneralTemporalMemory
-  elif tmImp == "fastMonitored":
-    return MonitoredFastGeneralTemporalMemory
+    return (FastTemporalMemory if not monitoring
+            else MonitoredFastTemporalMemory)
+  elif tmImp == "general":
+    return (GeneralTemporalMemory if not monitoring
+            else MonitoredGeneralTemporalMemory)
+  elif tmImp == "fastGeneral":
+    return (FastGeneralTemporalMemory if not monitoring
+            else MonitoredFastGeneralTemporalMemory)
   else:
     raise RuntimeError("Invalid temporal memory implementation '{imp}'. "
                        "Legal values are: 'general' and 'fast'"
@@ -232,7 +242,7 @@ def _getAdditionalSpecs(tmImp):
           description="Seed for the random number generator.",
           accessMode='ReadWrite',
           dataType="UInt32",
-          count=0),
+          count=1),
       tmType=dict(
           description="Type of tm to use: general",
           accessMode="ReadWrite",
@@ -465,10 +475,21 @@ class TMRegion(PyRegion):
               isDefaultInput=False,
               requireSplitterMap=False),
           formInternalConnections=dict(
-              description="Flag to determine whether to form connections "
-                          "with internal cells within this temporal memory",
-              dataType="bool",
-              count=0,
+              description="A boolean flag to determine whether to form "
+                          "connections with internal cells within this "
+                          "temporal memory",
+              dataType="Real32",
+              count=1,
+              required=False,
+              regionLevel=True,
+              isDefaultInput=False,
+              requireSplitterMap=False),
+          reset=dict(
+              description="A boolean flag that indicates whether or not the "
+                          "input vector received in this compute cycle "
+                          "represents the start of a new temporal sequence.",
+              dataType='Real32',
+              count=1,
               required=False,
               regionLevel=True,
               isDefaultInput=False,
